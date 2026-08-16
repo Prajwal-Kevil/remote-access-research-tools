@@ -1,0 +1,16 @@
+name: Repository hygiene
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for accidentally committed private key files
+        shell: bash
+        run: |
+          if find . -path './.git' -prune -o -type f \( -name '*.pem' -o -name '*.key' -o -name '.env' \) -print -quit | grep -q .; then
+            echo 'Potential secret-bearing file found; review before merging.'
+            exit 1
+          fi
